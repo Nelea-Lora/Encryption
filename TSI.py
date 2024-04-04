@@ -94,60 +94,102 @@ def decrypt(public_key, private_key, ciphertext):
 
 def button1_clicked():
     # Симметричный алгоритм
-    key = generate_key()
-    plaintext = simpledialog.askstring("Input", "Please enter text:")
-    ciphertext, iv = encrypt_text(key, plaintext)
+    input_window = tk.Toplevel(root)
+    input_window.title("Enter Text")
+    entry_label = tk.Label(input_window, text="Enter text:")
+    entry_label.pack()
+    text_entry = tk.Entry(input_window)
+    text_entry.pack()
 
-    new_window = tk.Toplevel(root)
-    new_window.title("Encrypted Text")
+    # Функция, вызываемая при нажатии кнопки "Зашифровать"
+    def encrypt_button_clicked():
+        plaintext = text_entry.get()  # Получаем текст из поля ввода
+        key = generate_key()
+        ciphertext, iv = encrypt_text(key, plaintext)
 
-    encrypted_label = tk.Label(new_window, text="Encrypted text: " + ciphertext.hex())
-    encrypted_label.pack()
+        # Отображаем результаты шифрования в новом окне
+        result_window = tk.Toplevel(root)
+        result_window.title("Encrypted Text")
 
-    iv_label = tk.Label(new_window, text="Initialization vector: " + iv.hex())
-    iv_label.pack()
+        encrypted_label = tk.Label(result_window, text="Encrypted text: " + ciphertext.hex())
+        encrypted_label.pack()
 
-    print("Encrypted text:", ciphertext.hex())
-    print("Initialization vector:", iv.hex())
+        iv_label = tk.Label(result_window, text="Initialization vector: " + iv.hex())
+        iv_label.pack()
+
+        # Функция, вызываемая при нажатии кнопки "Расшифровать"
+        def decrypt_button_clicked():
+            decrypted_text = decrypt(key, iv, ciphertext)
+            decrypted_label = tk.Label(result_window, text="Decrypted text: " + decrypted_text)
+            decrypted_label.pack()
+
+            print("Decrypted text:", decrypted_text)
+
+        # Создаем кнопку "Расшифровать" и связываем с ней функцию decrypt_button_clicked
+        decrypt_button = tk.Button(result_window, text="Decrypt", command=decrypt_button_clicked)
+        decrypt_button.pack()
+
+        print("Encrypted text:", ciphertext.hex())
+        print("Initialization vector:", iv.hex())
+
+    # Создаем кнопку "Зашифровать" и связываем с ней функцию encrypt_button_clicked
+    encrypt_button = tk.Button(input_window, text="Encrypt", command=encrypt_button_clicked)
+    encrypt_button.pack()
 
 def button2_clicked():
     # Асимметричный алгоритм
+    def encrypt_button_clicked():
+        plaintext_str = text_entry.get()  # Получаем текст из поля ввода
+        plaintext_bytes = plaintext_str.encode()
+        plaintext_int = int.from_bytes(plaintext_bytes, byteorder='big')
+        ciphertext = encrypt(public_key, plaintext_int)
+
+        # Функция для обработки нажатия кнопки "Decrypt"
+        def decrypt_button_clicked():
+            decrypted_text = decrypt(public_key, private_key, ciphertext)
+            print("Decrypted text:", decrypted_text)
+
+        # Создаем новое окно для отображения зашифрованного текста
+        result_window = tk.Toplevel(root)
+        result_window.title("Encrypted Text")
+
+        # Выводим зашифрованный текст на новом окне
+        encrypted_label = tk.Label(result_window, text="Encrypted text: " + str(ciphertext))
+        encrypted_label.pack()
+
+        # Создаем кнопку "Decrypt" и связываем с ней функцию decrypt_button_clicked
+        decrypt_button = tk.Button(result_window, text="Decrypt", command=decrypt_button_clicked)
+        decrypt_button.pack()
+
+        # Выводим информацию о ключах и зашифрованном тексте в консоль
+        print("Public key:", public_key)
+        print("Private key:", private_key)
+        print("Encrypted Text:", ciphertext)
+
+    # Генерируем ключи
     public_key, private_key = generate_keys(128)
-    plaintext_str = simpledialog.askstring("Input", "Please enter text:")
-    plaintext_bytes = plaintext_str.encode()
-    plaintext_int = int.from_bytes(plaintext_bytes, byteorder='big')
-    ciphertext = encrypt(public_key, plaintext_int)
-    new_window = tk.Toplevel(root)
-    new_window.title("Encrypted Text")
-        
-    # Выводим зашифрованный текст и ключи на новом окне
-    encrypted_label = tk.Label(new_window, text="Encrypted text: " + str(ciphertext))
-    encrypted_label.pack()
-    public_key_label = tk.Label(new_window, text="Public key: " + str(public_key))
-    public_key_label.pack()
-    private_key_label = tk.Label(new_window, text="Private key: " + str(private_key))
-    private_key_label.pack()
-        
-    # Выводим информацию о ключах и зашифрованном тексте в консоль
-    print("Public key:", public_key)
-    print("Private key:", private_key)
-    print("Encrypted Text:", ciphertext)
+
+    # Создаем окно для ввода текста
+    input_window = tk.Toplevel(root)
+    input_window.title("Enter Text")
+    entry_label = tk.Label(input_window, text="Enter text:")
+    entry_label.pack()
+    text_entry = tk.Entry(input_window)
+    text_entry.pack()
+
+    # Создаем кнопку "Encrypt" и связываем с ней функцию encrypt_button_clicked
+    encrypt_button = tk.Button(input_window, text="Encrypt", command=encrypt_button_clicked)
+    encrypt_button.pack()
 
 def button3_clicked():
     # Открываем окно ввода текста
     result = simpledialog.askstring("Input", "Please enter text:")
-    if result:
-        open_new_window("You entered: " + result)
-    else:
-        open_new_window("No text entered.")
+    
 
 def button4_clicked():
     # Открываем окно ввода текста
     result = simpledialog.askstring("Input", "Please enter text:")
-    if result:
-        open_new_window("You entered: " + result)
-    else:
-        open_new_window("No text entered.")
+    
        
 root = tk.Tk()
 
